@@ -11,7 +11,7 @@ $empresa=$empresa[0];
             <h2>Fornecedores - <?php echo $empresa['nome_fantasia']; ?></h2>
         </div>
         <div class="col-sm-6 text-right h2">
-            <a class="btn btn-primary" href="add.php">
+            <a class="btn btn-primary" href="?url=cadastrarFornecedor&id=<?php echo $empresa['id_empresa']; ?>">
                 <i class="fa fa-plus"></i> Novo fornecedor
             </a>
             <a class="btn btn-default" href="index.php">
@@ -49,7 +49,7 @@ $empresa=$empresa[0];
                     <td><?php 
                         if($fornecedor['rg'] == "")
                         echo '-';
-                        
+
                         echo $fornecedor['rg']; ?></td>
                     <td><?php 
                         if($fornecedor['data_nascimento'] == "0000-00-00"){

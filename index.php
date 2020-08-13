@@ -20,8 +20,11 @@
         include("view/empresas/editEmpresa.php");
         break;
       case "deletarEmpresa":
-          include("view/empresas/deletarEmpresa.php");
-          break;
+        include("view/empresas/deletarEmpresa.php");
+        break;
+      case "cadastrarFornecedor":
+        include("view/fornecedores/novoFornecedor.php");
+        break;
       default:
         include("view/empresas/empresas.php");  
         break;    

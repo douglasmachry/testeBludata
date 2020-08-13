@@ -3,7 +3,7 @@ require_once('ctrl/ctrl-empresas.php');
 
 indexEmpresas();
 add();
-include(HEADER_TEMPLATE); 
+
 if($estados){
     $options = "";
     foreach($estados as $estado){
@@ -38,4 +38,3 @@ if($estados){
         <div class="col-md-12"> <button type="submit" class="btn btn-primary">Salvar</button> <a href="index.php" class="btn btn-default">Cancelar</a> </div>
     </div>
 </form>
-<?php include(FOOTER_TEMPLATE); ?>

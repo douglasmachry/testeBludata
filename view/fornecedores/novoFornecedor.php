@@ -1,41 +1,42 @@
-<?php 
-require_once('ctrl/ctrl-empresas.php');
+<?php
+require_once('ctrl/ctrl-fornecedores.php');
 
-indexEmpresas();
+indexFornecedores();
 add();
-include(HEADER_TEMPLATE); 
-if($estados){
-    $options = "";
-    foreach($estados as $estado){
-        $options .= "<option value=".$estado['sigla'].">".$estado['sigla']."</option>";
-    }
-}else{
-    $options = "<option>Erro ao carregar</option>";
-}
+$empresa = $empresa[0];
 ?>
-<h2>Nova Empresa</h2>
-<form action="index.php?url=cadastrarEmpresa" method="post" name="empresa">
+<h2>Novo Fornecedor - <?php echo $empresa['nome_fantasia']; ?></h2>
+<form action="index.php?url=cadastrarFornecedor" method="post" name="fornecedor">
     <!-- area de campos do form -->
     <hr />
     <div class="row">
-        <div class="form-group col-md-7">
-            <label for="name">Nome Fantasia</label>
-            <input type="text" class="form-control" name="empresa['nome_fantasia']" required>
+        <div class="form-group col-md-10">
+            <label for="name">Nome</label>
+            <input type="text" class="form-control" name="fornecedor['nome']" required>
         </div>
         <div class="form-group col-md-3">
-            <label for="campo2">CNPJ (somente números)</label>
-            <input type="text" class="form-control" name="empresa['cnpj']" required>
+            <label>
+                <input type="radio" name="cpfCnpj" value="cnpj" checked> CNPJ
+                <input type="radio" name="cpfCnpj" value="cpf"> CPF
+                
+            </label>
+            <input type="text" class="form-control" id="cpf_cnpj" name="fornecedor['cpf_cnpj']" pattern="(\d{3}\.?\d{3}\.?\d{3}-?\d{2})|(\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2})" placeholder="__.___.___/____-__" required>
+            
         </div>
-        <div class="form-group col-md-2">
-            <label for="campo3">UF</label>
-            <select id="uf" name="empresa['uf']" class="form-control" >
-                <?php echo $options; ?>
-            </select>  
+
+        <div class="form-group col-md-3 camposCPF">
+            <label for="fornecedor['rg']">RG</label>
+            <input type="text" class="form-control" name="fornecedor['rg']" maxlength="10">
         </div>
+        <div class="form-group col-md-3 camposCPF">
+            <label for="data_nascimento">Data de Nascimento</label>
+            <input type="date" class="form-control" name="fornecedor['data_nascimento']">
+        </div>
+        
     </div>
-    
+    <div class="alert alert-danger" role="alert">
+        </div>
     <div id="actions" class="row">
         <div class="col-md-12"> <button type="submit" class="btn btn-primary">Salvar</button> <a href="index.php" class="btn btn-default">Cancelar</a> </div>
     </div>
 </form>
-<?php include(FOOTER_TEMPLATE); ?>

@@ -22,4 +22,21 @@ $(document).ready(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });
+
+
 });
+$("#cpf_cnpj").mask("00.000.000/0000-00");
+$(".camposCPF").hide();
+$("input[name=cpfCnpj]").change(function() {
+    var val = $(this).val();
+    if (val === "cpf") {
+        $("#cpf_cnpj").mask("000.000.000-00");
+        $("#cpf_cnpj").attr("placeholder", "___.___.___-__");
+        $('.camposCPF input').attr("required", "req");
+    } else {
+        $("#cpf_cnpj").mask("00.000.000/0000-00");
+        $("#cpf_cnpj").attr("placeholder", "__.___.___/____-__");
+        $(".camposCPF input").removeAttr("required");
+    }
+    $(".camposCPF").toggle();
+})
