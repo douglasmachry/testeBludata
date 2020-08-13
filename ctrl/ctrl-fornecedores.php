@@ -47,7 +47,7 @@ function add()
 {
     if (!empty($_POST['fornecedor'])) {
         $fornecedor = $_POST['fornecedor'] ?? '';
-
+        
 
         save('fornecedor', $fornecedor);
         header('location: index.php');

@@ -22,21 +22,33 @@ $(document).ready(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });
-
+    $("#cpf_cnpj").mask("00.000.000/0000-00");
+    $(".telefone").mask("(00)00000-0000");
+    $(".camposCPF").hide();
+    $("input[name=cpfCnpj]").on('change', function() {
+        var val = $(this).val();
+        if (val === "cpf") {
+            $("#cpf_cnpj").mask("000.000.000-00");
+            $("#cpf_cnpj").attr("placeholder", "___.___.___-__");
+            $('.camposCPF input').attr("required", "req");
+            $('#alertCPF').toggle();
+        } else {
+            $("#cpf_cnpj").mask("00.000.000/0000-00");
+            $("#cpf_cnpj").attr("placeholder", "__.___.___/____-__");
+            $(".camposCPF input").removeAttr("required");
+            $('#alertCPF').toggle();
+        }
+        $(".camposCPF").toggle();
+    })
 
 });
-$("#cpf_cnpj").mask("00.000.000/0000-00");
-$(".camposCPF").hide();
-$("input[name=cpfCnpj]").change(function() {
-    var val = $(this).val();
-    if (val === "cpf") {
-        $("#cpf_cnpj").mask("000.000.000-00");
-        $("#cpf_cnpj").attr("placeholder", "___.___.___-__");
-        $('.camposCPF input').attr("required", "req");
-    } else {
-        $("#cpf_cnpj").mask("00.000.000/0000-00");
-        $("#cpf_cnpj").attr("placeholder", "__.___.___/____-__");
-        $(".camposCPF input").removeAttr("required");
-    }
-    $(".camposCPF").toggle();
+$(".addtelefone").click(function(e) {
+    html = "<label><label><input type='text' class='form-control telefone' name='telefone[]'>" +
+        " </label><button type='button' class='btn-danger btn-sm removerTelefone'> Remover </button></label> ";
+    $("#telefones").append(html);
+})
+
+$(document).on('click', ".removerTelefone", function(e) {
+    var id = $(".removerTelefone").index(this);
+    $(".removerTelefone").eq(id).parent().remove();
 })
