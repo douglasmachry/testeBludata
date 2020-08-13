@@ -1,0 +1,12 @@
+div .modal-alert {
+    color: red;
+    padding-left: 1rem;
+}
+
+#uf {
+    width: 80px;
+}
+
+td .telefones li {
+    font-size: 10px;
+}
