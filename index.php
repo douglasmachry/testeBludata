@@ -1,16 +1,18 @@
 <?php
 session_start();
-
-error_reporting(E_ALL);
+//CARREGAR CONFIGURAÇÕES
 require_once 'config.php';
+//INFORMAÇÕES DO BANCO DE DADOS
 require_once DBAPI;
+//INCLUIR CABEÇALHO
 include(HEADER_TEMPLATE);
-
+//INTANCIAR BANCO DE DADOS
 $db = open_database();
 if ($db) {
   if (!isset($_GET['url'])) {
     include("view/empresas/empresas.php");
   } else {
+    //INCLUSÃO DE PÁGINAS INTERNAS
     switch ($_GET['url']) {
       case "fornecedor":
         include("view/fornecedores/fornecedores.php");
@@ -45,6 +47,7 @@ if ($db) {
   echo "Não foi possível conectar ao Banco de Dados";
 }
 
-
+//MODAL A SER ACIONADO QUANDO NECESSÁRIO
 include("view/modal.php");
+//INCLUIR RODAPÉ
 include(FOOTER_TEMPLATE);

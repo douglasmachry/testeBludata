@@ -32,24 +32,32 @@ if(isset($_GET['empresa']) && is_numeric($_GET['empresa'])){
     </div>
 </header>
 
-<hr>
 
-<table class="table table-hover">
+<table class="table table-hover" id="tableFornecedores">
     <thead>
         <tr>
             <th>Nome</th>
             <th>CPF/CNPJ</th>
             <th>RG</th>
             <th>Data de Nascimento</th>
-            <th>Data-hora de cadastro</th>
+            <th>Data-hora <br>de cadastro</th>
             <th>Telefone(s)</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
+        <tr>
+            <td><input type="text" class="filtro" data-filtro="nome" placeholder="Filtro por nome"></td>
+            <td><input type="text" class="filtro" data-filtro="cpf-cnpj" placeholder="Filtro por CPF/CNPJ"></td>
+            <td></td>
+            <td></td>
+            <td><input type="text" class="filtro" width="70" data-filtro='data-cadastro' placeholder="Filtro por data/hora de cadastro"></td>
+            <td></td>
+        </tr>
         <?php if ($fornecedores) :  foreach ($fornecedores as $fornecedor) : ?>
-                <tr>
-                    <td><?php echo $fornecedor['nome']; ?></td>
-                    <td><?php
+                <tr class="data">
+                    <td class="coluna-nome"><?php echo $fornecedor['nome']; ?></td>
+                    <td class="coluna-cpf-cnpj"><?php
                             echo $fornecedor['cpf_cnpj']; ?></td>
                     <td><?php 
                         if($fornecedor['rg'] == "")
@@ -64,7 +72,7 @@ if(isset($_GET['empresa']) && is_numeric($_GET['empresa'])){
                         }
                          ?>
                     </td>
-                    <td><?php echo date_format(date_create($fornecedor['data_hora']),'d/m/Y H:m'); ?></td>
+                    <td class="coluna-data-cadastro"><?php echo date_format(date_create($fornecedor['data_hora']),'d/m/Y H:m'); ?></td>
                     <td>
                         <?php
                             $telefones = loadTelefones($fornecedor['id_fornecedor']);
