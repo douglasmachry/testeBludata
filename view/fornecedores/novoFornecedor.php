@@ -1,8 +1,10 @@
 <?php
 require_once('ctrl/ctrl-fornecedores.php');
-
+// Função para recuperar os dados que serão apresentados
 indexFornecedores($_GET['empresa']);
 add();
+
+// Testa se a empresa na qual será cadastrado o fornecedor é do Paraná e prepara um aviso ao usuário
 if ($empresa['uf'] == 18) {
     $alerta = "
         <label class='form-group alert alert-warning' role='alert' id='alertCPF' style='display: none;'>

@@ -1,6 +1,6 @@
 <?php
 mysqli_report(MYSQLI_REPORT_STRICT);
-$last_id = null;
+// Estabelecer conexão com banco de dados
 function open_database()
 {
     try {
@@ -46,12 +46,13 @@ function find($table = null, $condition = null, $id = null)
     close_database($database);
     return $found;
 }
-
+// Ler todos os registros da tabela
 function find_all($table)
 {
     return find($table);
 }
 
+// Gravação de dados
 function save($table = null, $data = null)
 {
     $database = open_database();
@@ -79,7 +80,7 @@ function save($table = null, $data = null)
     }
     close_database($database);
 }
-
+// Atualização de dados
 function update($table = null,  $data = null, $condition = null, $id = 0)
 {
     $database = open_database();
@@ -102,7 +103,7 @@ function update($table = null,  $data = null, $condition = null, $id = 0)
     }
     close_database($database);
 }
-
+// Deletar dados
 function remove($table = null, $id = null)
 {
     $database = open_database();
@@ -110,7 +111,7 @@ function remove($table = null, $id = null)
         if ($id) {
             $sql = "DELETE FROM " . $table . " WHERE id_".$table." = " . $id;
             $result = $database->query($sql);
-            if ($result = $database->query($sql)) {
+            if ($result) {
                 $_SESSION['message'] = "Registro removido com Sucesso.";
                 $_SESSION['type'] = 'success';
             }

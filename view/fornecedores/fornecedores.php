@@ -1,5 +1,6 @@
 <?php 
 require_once('ctrl/ctrl-fornecedores.php');
+// Testa se existe algum valor na variável via GET e se é um número
 if(isset($_GET['empresa']) && is_numeric($_GET['empresa'])){
     indexFornecedores($_GET['empresa']);
 }else{
@@ -8,6 +9,7 @@ if(isset($_GET['empresa']) && is_numeric($_GET['empresa'])){
 
 
 ?>
+<!-- ALERTAS GERAIS -->
 <?php if (!empty($_SESSION['message'])) : ?>
     <div class="alert alert-<?php echo $_SESSION['type']; ?> alert-dismissible" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -42,7 +44,7 @@ if(isset($_GET['empresa']) && is_numeric($_GET['empresa'])){
             <th>Data de Nascimento</th>
             <th>Data-hora <br>de cadastro</th>
             <th>Telefone(s)</th>
-            <th></th>
+            
         </tr>
     </thead>
     <tbody>
