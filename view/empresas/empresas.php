@@ -1,8 +1,17 @@
 <?php 
 require_once('ctrl/ctrl-empresas.php');
 indexEmpresas(); 
-?>
+if (!empty($_SESSION['message'])) : ?>
+    <div class="alert alert-<?php echo $_SESSION['type']; ?> alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button> <?php echo $_SESSION['message']; ?>
+    </div>
 
+<?php 
+unset($_SESSION['message']);
+ endif; 
+ ?>
 <header>
     <div class="row">
         <div class="col-sm-6">
@@ -25,7 +34,7 @@ indexEmpresas();
         </button> <?php echo $_SESSION['message']; ?>
     </div>
 
-<?php endif; ?>
+<?php unset($_SESSION['message']); endif; ?>
 <hr>
 <table class="table table-hover">
     <thead>
@@ -39,7 +48,7 @@ indexEmpresas();
         <?php if ($empresas) :  foreach ($empresas as $empresa) : ?>
                 <tr>
                     <td><?php echo $empresa['nome_fantasia']; ?></td>
-                    <td><?php echo formatCnpjCpf($empresa['cnpj']); ?></td>
+                    <td><?php echo $empresa['cnpj']; ?></td>
                     <td><?php 
                         foreach($estados as $estado){
                             if($estado['id_estado'] == $empresa['uf'])
@@ -48,13 +57,13 @@ indexEmpresas();
                         ?>
                     </td>
                     <td class="actions text-right">
-                        <a href="index.php?url=fornecedor&id=<?php echo $empresa['id_empresa']; ?>" class="btn btn-sm btn-success">
+                        <a href="index.php?url=fornecedor&empresa=<?php echo $empresa['id_empresa']; ?>" class="btn btn-sm btn-success">
                             <i class="fa fa-eye"></i> Visualizar Fornecedores
                         </a>
                         <a href="index.php?url=editarEmpresa&id=<?php echo $empresa['id_empresa']; ?>" class="btn btn-sm btn-warning">
                             <i class="fa fa-pencil"></i>Editar
                         </a>
-                        <a href="#" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-modal" data-empresa="<?php echo $empresa['id_empresa']; ?>" data-info="empresa">
+                        <a href="#" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-modal" data-id="<?php echo $empresa['id_empresa']; ?>" data-info="Empresa">
                             <i class="fa fa-trash"></i> Excluir
                         </a>
                     </td>
@@ -62,4 +71,3 @@ indexEmpresas();
                 <td colspan="6">Nenhum registro encontrado.</td>
             </tr> <?php endif; ?> </tbody>
 </table>
-<?php include(FOOTER_TEMPLATE); ?>

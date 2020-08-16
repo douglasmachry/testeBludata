@@ -1,5 +1,6 @@
 <?php
 mysqli_report(MYSQLI_REPORT_STRICT);
+$last_id = null;
 function open_database()
 {
     try {
@@ -28,7 +29,7 @@ function find($table = null, $condition = null, $id = null)
         if ($id) {
             $sql = "SELECT * FROM " . $table . " WHERE ".$condition." = " . $id;
             $result = $database->query($sql);
-            if ($result->num_rows > 0) {
+            if ($result && $result->num_rows > 0) {
                 $found = $result->fetch_all(MYSQLI_ASSOC);
             }
         } else {
@@ -56,7 +57,7 @@ function save($table = null, $data = null)
     $database = open_database();
     $columns = null;
     $values = null;
-
+    global $last_id;
     foreach ($data as $key => $value) {
         $columns .= trim($key, "'") . ",";
         $values .= "'$value',";
@@ -68,6 +69,7 @@ function save($table = null, $data = null)
 
     try {
         $database->query($sql);
+        $last_id = $database->insert_id;
         $_SESSION['message'] = 'Registro cadastrado com sucesso.';
         $_SESSION['type'] = 'success';
     } catch (Exception $e) {
@@ -78,7 +80,7 @@ function save($table = null, $data = null)
     close_database($database);
 }
 
-function update($table = null, $id = 0, $data = null)
+function update($table = null,  $data = null, $condition = null, $id = 0)
 {
     $database = open_database();
     $items = null;
@@ -89,7 +91,7 @@ function update($table = null, $id = 0, $data = null)
     $items = rtrim($items, ',');
     $sql  = "UPDATE " . $table;
     $sql .= " SET $items";
-    $sql .= " WHERE id=" . (int)$id . ";";
+    $sql .= " WHERE ".$condition." = " . (int)$id . ";";
     try {
         $database->query($sql);
         $_SESSION['message'] = 'Registro atualizado com sucesso.';
@@ -109,7 +111,7 @@ function remove($table = null, $id = null)
             $sql = "DELETE FROM " . $table . " WHERE id_".$table." = " . $id;
             $result = $database->query($sql);
             if ($result = $database->query($sql)) {
-                $_SESSION['message'] = "Registro Removido com Sucesso.";
+                $_SESSION['message'] = "Registro removido com Sucesso.";
                 $_SESSION['type'] = 'success';
             }
         }

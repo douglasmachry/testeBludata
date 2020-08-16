@@ -5,28 +5,21 @@ $fornecedor = null;
 $idEmpresa = null;
 $idFornecedor = null;
 $telefones = null;
+$empresa = null;
 
-if (isset($_GET['id'])) {
-    $idEmpresa = $_GET['id'];
-} else {
-    header('location: index.php');
-}
 /**	 *  Listagem de fornecedores	 */
-function indexFornecedores()
+function indexFornecedores($idEmpresa)
 {
-    global $fornecedores, $idEmpresa, $empresa;
-    $fornecedores = find('fornecedor', 'id_empresa', $idEmpresa);
+    global $fornecedores, $empresa;
     $empresa = find('empresa', 'id_empresa', $idEmpresa);
+    if ($empresa) {
+        $empresa = $empresa[0];
+        $fornecedores = find('fornecedor', 'id_empresa', $empresa['id_empresa']);
+    } else {
+        header('location:index.php');
+    }
 }
 
-function formatarTelefone($telefone){
-    if(strlen(preg_replace("/[^0-9]/", "", $telefone)) == 10){
-        $telefoneFormatado = "(".substr($telefone,0,2).")".substr($telefone,2,4)."-".substr($telefone,6,10);
-    }else{
-        $telefoneFormatado = "(".substr($telefone,0,2).")".substr($telefone,2,5)."-".substr($telefone,7,11);
-    }
-    return $telefoneFormatado;
-}
 
 function loadTelefones($idFornecedor)
 {
@@ -34,8 +27,7 @@ function loadTelefones($idFornecedor)
     $listaTelefones = "";
     if ($telefones) {
         foreach ($telefones as $telefone) {
-            $telefoneFormatado = formatarTelefone($telefone['telefone']);
-            $listaTelefones .= "<li style='font-size: 13px; list-style-type:none'>" . $telefoneFormatado . "</li>";
+            $listaTelefones .= "<li style='font-size: 13px; list-style-type:none'>" . $telefone['telefone'] . "</li>";
         }
     } else {
         $listaTelefones = "Nenhum";
@@ -46,45 +38,156 @@ function loadTelefones($idFornecedor)
 function add()
 {
     if (!empty($_POST['fornecedor'])) {
+        global $last_id, $empresa;
         $fornecedor = $_POST['fornecedor'] ?? '';
-        
+        $fornecedor['cpfCnpj'] = $_POST['cpfCnpj'];
+        $validacao = validacoes($fornecedor);
+        if ($validacao) {
+            unset($fornecedor['cpfCnpj']);
+            $now = date_create('now', new DateTimeZone('America/Sao_Paulo'));
+            $fornecedor['id_empresa'] = (int)$empresa['id_empresa'];
+            $fornecedor['data_hora'] = $now->format('Y-m-d H:i');
+            save('fornecedor', $fornecedor);
+            if(isset($_POST['telefone']))
+                addTelefones($_POST['telefone'], $last_id);
+            
+            header('location: index.php?url=fornecedor&id=' . $empresa['id_empresa']);
+        } else {
+            header("location: index.php?url=cadastrarFornecedor&id=" . $empresa['id_empresa']);
+        }
+    }
+}
 
-        save('fornecedor', $fornecedor);
-        header('location: index.php');
+function addTelefones($telefones,$idFornecedor){
+    $arrayTelefone['id_fornecedor'] = $idFornecedor;
+    foreach ($telefones as $telefone) {
+        $arrayTelefone['telefone'] = $telefone;
+        save('telefone', $arrayTelefone);
     }
 }
 
 function edit()
 {
-    if (isset($_GET['id'])) {
-        $id = $_GET['id'];
-
+    if (isset($_GET['fornecedor'])) {
+        $idFornecedor = $_GET['fornecedor'];
         if (isset($_POST['fornecedor'])) {
             $fornecedor = $_POST['fornecedor'];
-            update('fornecedor', $id, $fornecedor);
-            header('location: index.php');
+            $fornecedor['cpfCnpj'] = $_POST['cpfCnpj'];
+            $validacao = validacoes($fornecedor);
+            if ($validacao) {
+                unset($fornecedor['cpfCnpj']);
+                $telefonesAtuais = $_POST['telefoneAtual'];
+                update('fornecedor', $fornecedor,'id_fornecedor',$idFornecedor);
+                $arrayTelefone['id_fornecedor']=$idFornecedor;
+                
+                foreach($telefonesAtuais as $key => $telefone){
+                    $arrayTelefone['telefone'] = $telefone;
+                    update('telefone',$arrayTelefone,'id_telefone',$key);
+                }
+                if(isset($_POST['telefone'])){
+                    addTelefones($_POST['telefone'],$idFornecedor);
+                }
+                    
+                header('location: index.php?url=fornecedor&empresa='.$fornecedor["'id_empresa'"]);
+                
+            }else{
+                header('location: index.php?url=editarFornecedor&fornecedor='.$idFornecedor);
+            }
         } else {
-            global $fornecedor;
-            $fornecedor = find('fornecedor', 'id_fornecedor', $id);
+            global $fornecedor, $empresa, $campoCpfCnpj, $placeholder, $camposCPF, $telefones, $required, $empresas;
+            $fornecedor = find('fornecedor', 'id_fornecedor', $idFornecedor);
+            $fornecedor = $fornecedor[0];
+            //recupera todas as empresas cadastradas
+            $empresas = find_all('empresa');
+            //recupera a empresa a qual pertence o fornecedor
+            $empresa = find('empresa', 'id_empresa', $fornecedor['id_empresa']);
+            $empresa = $empresa[0];
+            //recupera os telefones de contato do fornecedor
+            $telefones = find('telefone', 'id_fornecedor', $fornecedor['id_fornecedor']);
+            //verifica se o valor retornado do BD é um CPF ou um CNPJ
+            $campoCpfCnpj = verificaCpfCnpj($fornecedor['cpf_cnpj']);
+            if ($campoCpfCnpj == 'cpf') {
+                $placeholder = "placeholder='___.___.___-__'";
+                $camposCPF = "";
+                $required = true;
+            } else {
+                $placeholder = "placeholder='__.___.___/____-__'";
+                $camposCPF = "style='display:none;'";
+                $required = false;
+            }
+            if ($empresa['uf'] == 18 && $campoCpfCnpj == "cpf") {
+                $_SESSION['message'] = "ATENÇÃO: Empresas do Paraná não aceitam fornecedores pessoa física menores de 18 anos.";
+                $_SESSION['type'] = 'warning';
+            }
+            
         }
-    } else {
-        header('location: index.php');
     }
 }
 
-function delete($id = null)
+function delete($table=null, $data = null)
 {
     global $fornecedor;
-    $fornecedor = remove('fornecedor', $id);
-    header('location: index.php');
+    $fornecedor = find('fornecedor','id_fornecedor',$data['id_fornecedor']);
+    $fornecedor = $fornecedor[0];
+    if($table == 'fornecedor'){
+        $id = $data['id_fornecedor'];
+        $url = "fornecedor&empresa=".$fornecedor['id_empresa'];
+    }else{
+        $id = $data['id_telefone'];
+        $url = "editarFornecedor&fornecedor=".$fornecedor['id_fornecedor'];
+    }
+    
+    remove($table, $id);
+    header('location: index.php?url='.$url);
 }
 
-function formatCnpjCpf($value)
+
+function validacoes($campos)
 {
-  $cnpj_cpf = preg_replace("/\D/", '', $value);
-  
-  if (strlen($cnpj_cpf) === 11) {
-    return preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "\$1.\$2.\$3-\$4", $cnpj_cpf);
-  }  
-  return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "\$1.\$2.\$3/\$4-\$5", $cnpj_cpf);
+    require_once('validaCpfCnpj.class.php');
+    global $empresa;
+    $empresa = find('empresa','id_empresa',$campos["'id_empresa'"]);
+    $empresa=$empresa[0];
+    $validaCpfCnpj = new ValidaCPFCNPJ($campos["'cpf_cnpj'"]);
+
+    if ($validaCpfCnpj->valida()) {
+        if($campos["cpfCnpj"] == "cpf"){
+            $data_nascimento = date_create($campos["'data_nascimento'"]);
+            $hoje = new DateTime(date('Y-m-d'));
+            if($data_nascimento > $hoje ){
+                $_SESSION['message'] = "Data de nascimento inválida";
+                $_SESSION['type'] = 'danger';
+                return false;
+            }else{
+                if ($empresa['uf'] == "18") {
+            
+                    $idade = $data_nascimento->diff(new DateTime(date('Y-m-d')));
+                    if ($idade->y >= 18) {
+                        return true;
+                    } else {
+                        $_SESSION['message'] = "Empresas localizadas no Paraná não aceitam fornecedores pessoa física menores de idade";
+                        $_SESSION['type'] = 'danger';
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        return true;
+    } else {
+        $_SESSION['message'] = "CPF ou CNPJ inválido";
+        $_SESSION['type'] = 'danger';
+        return false;
+    }
+}
+
+function verificaCpfCnpj($valor)
+{
+    if (strlen($valor) == 18) {
+        $verificador = "cnpj";
+    } else {
+        $verificador = "cpf";
+    }
+
+    return $verificador;
 }

@@ -1,25 +1,13 @@
 <?php 
 require_once('ctrl/ctrl-fornecedores.php');
-indexFornecedores();
-$empresa=$empresa[0];
+if(isset($_GET['empresa']) && is_numeric($_GET['empresa'])){
+    indexFornecedores($_GET['empresa']);
+}else{
+    header('location: index.php');
+}
+
 
 ?>
-
-<header>
-    <div class="row">
-        <div class="col-sm-6">
-            <h2>Fornecedores - <?php echo $empresa['nome_fantasia']; ?></h2>
-        </div>
-        <div class="col-sm-6 text-right h2">
-            <a class="btn btn-primary" href="?url=cadastrarFornecedor&id=<?php echo $empresa['id_empresa']; ?>">
-                <i class="fa fa-plus"></i> Novo fornecedor
-            </a>
-            <a class="btn btn-default" href="index.php">
-                <i class="fa fa-refresh"></i> Atualizar
-            </a>
-        </div>
-    </div>
-</header>
 <?php if (!empty($_SESSION['message'])) : ?>
     <div class="alert alert-<?php echo $_SESSION['type']; ?> alert-dismissible" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -27,8 +15,25 @@ $empresa=$empresa[0];
         </button> <?php echo $_SESSION['message']; ?>
     </div>
 
-<?php endif; ?>
+<?php unset($_SESSION['message']); endif; ?>
+<header>
+    <div class="row">
+        <div class="col-sm-6">
+            <h2>Fornecedores - <?php echo $empresa['nome_fantasia']; ?></h2>
+        </div>
+        <div class="col-sm-6 text-right h2">
+            <a class="btn btn-primary" href="?url=cadastrarFornecedor&empresa=<?php echo $empresa['id_empresa']; ?>">
+                <i class="fa fa-plus"></i> Novo fornecedor
+            </a>
+            <a class="btn btn-default" href="index.php?url=fornecedor&empresa=<?php echo $empresa['id_empresa']; ?>">
+                <i class="fa fa-refresh"></i> Atualizar
+            </a>
+        </div>
+    </div>
+</header>
+
 <hr>
+
 <table class="table table-hover">
     <thead>
         <tr>
@@ -45,7 +50,7 @@ $empresa=$empresa[0];
                 <tr>
                     <td><?php echo $fornecedor['nome']; ?></td>
                     <td><?php
-                            echo formatCnpjCpf($fornecedor['cpf_cnpj']); ?></td>
+                            echo $fornecedor['cpf_cnpj']; ?></td>
                     <td><?php 
                         if($fornecedor['rg'] == "")
                         echo '-';
@@ -55,7 +60,7 @@ $empresa=$empresa[0];
                         if($fornecedor['data_nascimento'] == "0000-00-00"){
                             echo "-";
                         }else{
-                            echo $fornecedor['data_nascimento'];
+                            echo date_format(date_create($fornecedor['data_nascimento']),'d/m/Y');
                         }
                          ?>
                     </td>
@@ -67,10 +72,10 @@ $empresa=$empresa[0];
                         ?>
                     </td>
                     <td class="actions text-right">
-                        <a href="edit.php?id=<?php echo $fornecedor['id_fornecedor']; ?>" class="btn btn-sm btn-warning">
+                        <a href="index.php?url=editarFornecedor&fornecedor=<?php echo $fornecedor['id_fornecedor']; ?>" class="btn btn-sm btn-warning">
                             <i class="fa fa-pencil"></i>Editar
                         </a>
-                        <a href="#" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-modal" data-fornecedor="<?php echo $fornecedor['id_fornecedor']; ?>">
+                        <a href="#" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-modal" data-id="<?php echo $fornecedor['id_fornecedor']; ?>" data-info='Fornecedor'>
                             <i class="fa fa-trash"></i> Excluir
                         </a>
                     </td>
@@ -78,4 +83,5 @@ $empresa=$empresa[0];
                 <td colspan="6">Nenhum registro encontrado.</td>
             </tr> <?php endif; ?> </tbody>
 </table>
+
 <?php include(FOOTER_TEMPLATE); ?>

@@ -1,8 +1,8 @@
 <?php require_once('ctrl/ctrl-empresas.php');
 edit();
-include(HEADER_TEMPLATE);
-$empresa = $empresa[0];
+
 $estados = find_all('estados');
+
 if($estados){
     $options = "";
     foreach($estados as $estado){
@@ -26,8 +26,10 @@ if($estados){
             <input type="text" class="form-control" name="empresa['nome_fantasia']" value="<?php echo $empresa['nome_fantasia']; ?>" required>
         </div>
         <div class="form-group col-md-3"> 
-            <label for="campo2">CNPJ (somente números)</label>
-            <input type="text" class="form-control" name="empresa['cnpj']" value="<?php echo $empresa['cnpj']; ?>" required> 
+            <label for="campo2">CNPJ</label>
+            <input type="hidden" name="cpfCnpj" value="cnpj">
+            <input type="text" class="form-control" name="empresa['cnpj']" value="<?php echo $empresa['cnpj']; ?>" 
+            pattern="[0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}\-?[0-9]{2}" placeholder="__.___.___/____-__" required> 
         </div>
         <div class="form-group col-md-3"> 
             <label for="campo2">UF</label>
@@ -38,7 +40,7 @@ if($estados){
     </div>
     
     <div id="actions" class="row">
-        <div class="col-md-12"> <button type="submit" class="btn btn-primary">Salvar</button> <a href="index.php" class="btn btn-default">Cancelar</a> </div>
+        <div class="col-md-12"> <button type="submit" class="btn btn-primary">Salvar</button>
+         <a href="javascript:void(0)" onClick="history.go(-1); return false;" class="btn btn-default">Cancelar</a> </div>
     </div>
 </form>
-<?php include(FOOTER_TEMPLATE); ?>

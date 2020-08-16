@@ -20,3 +20,4 @@ if (!defined('DBAPI'))
 /** caminhos dos templates de header e footer **/  
 define('HEADER_TEMPLATE', ABSPATH . 'view/header.php');
 define('FOOTER_TEMPLATE', ABSPATH . 'view/footer.php');
+

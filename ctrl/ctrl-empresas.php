@@ -15,9 +15,11 @@ function add()
     if (!empty($_POST['empresa'])) {
         $empresa = $_POST['empresa'] ?? '';
 
-
-        save('empresa', $empresa);
-        header('location: index.php');
+        $validacao = validacoes($empresa);
+        if ($validacao) {
+            save('empresa', $empresa);
+            header('location: index.php');
+        }
     }
 }
 
@@ -28,11 +30,12 @@ function edit()
 
         if (isset($_POST['empresa'])) {
             $empresa = $_POST['empresa'];
-            update('empresa', $id, $empresa);
+            update('empresa', $empresa, 'id_empresa', $id);
             header('location: index.php');
         } else {
             global $empresa;
-            $empresa = find('empresa','id_empresa', $id);
+            $empresa = find('empresa', 'id_empresa', $id);
+            $empresa = $empresa[0];
         }
     } else {
         header('location: index.php');
@@ -46,12 +49,16 @@ function delete($id = null)
     header('location: index.php');
 }
 
-function formatCnpjCpf($value)
+function validacoes($campos)
 {
-  $cnpj_cpf = preg_replace("/\D/", '', $value);
-  
-  if (strlen($cnpj_cpf) === 11) {
-    return preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "\$1.\$2.\$3-\$4", $cnpj_cpf);
-  }  
-  return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "\$1.\$2.\$3/\$4-\$5", $cnpj_cpf);
+
+    require_once('validaCpfCnpj.class.php');
+
+    $validaCpfCnpj = new ValidaCPFCNPJ($campos["'cnpj'"]);
+    if (!$validaCpfCnpj->valida()) {
+        $_SESSION['message'] = "CNPJ inválido";
+        $_SESSION['type'] = 'danger';
+        return false;
+    }
+    return true;
 }
