@@ -7,7 +7,7 @@ add();
 if ($estados) {
     $options = "";
     foreach ($estados as $estado) {
-        $options .= "<option value=" . $estado['sigla'] . ">" . $estado['sigla'] . "</option>";
+        $options .= "<option value=" . $estado['id_estado'] . ">" . $estado['sigla'] . "</option>";
     }
 } else {
     $options = "<option>Erro ao carregar</option>";
@@ -47,6 +47,6 @@ endif;
 
     <div id="actions" class="row">
         <div class="col-md-12"> <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="javascript:void(0)" onClick="history.go(-1); return false;" class="btn btn-default">Cancelar</a> </div>
+            <a href="index.php" class="btn btn-default">Cancelar</a> </div>
     </div>
 </form>

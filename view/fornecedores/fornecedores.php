@@ -74,7 +74,7 @@ if(isset($_GET['empresa']) && is_numeric($_GET['empresa'])){
                         }
                          ?>
                     </td>
-                    <td class="coluna-data-cadastro"><?php echo date_format(date_create($fornecedor['data_hora']),'d/m/Y H:m'); ?></td>
+                    <td class="coluna-data-cadastro"><?php echo date_format(date_create($fornecedor['data_hora']),'d/m/Y H:i'); ?></td>
                     <td>
                         <?php
                             $telefones = loadTelefones($fornecedor['id_fornecedor']);

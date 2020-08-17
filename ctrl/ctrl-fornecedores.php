@@ -40,26 +40,30 @@ function add()
 {
     // Testa se existe algum valor sendo enviado via POST
     if (!empty($_POST['fornecedor'])) {
-        global $last_id, $empresa;
+        global $last_id, $empresa, $registroSalvo, $fornecedor;
         $fornecedor = $_POST['fornecedor'] ?? '';
         // inclui o valor do radiobutton entre CPF e CNPJ
         $fornecedor['cpfCnpj'] = $_POST['cpfCnpj'];
+        $fornecedor['id_empresa'] = $_GET['empresa'];
         //Realizar a validação dos dados
         $validacao = validacoes($fornecedor);
         if ($validacao) {
             // Caso passe pela validação, adiciona os demais campos no array para enviar ao BD
             unset($fornecedor['cpfCnpj']);
-            $now = date_create('now', new DateTimeZone('America/Sao_Paulo'));
+            $now = date('Y-m-d H:i');
             $fornecedor['id_empresa'] = (int)$empresa['id_empresa'];
-            $fornecedor['data_hora'] = $now->format('Y-m-d H:i');
+            $fornecedor['data_hora'] = $now;
             save('fornecedor', $fornecedor);
             // Testa se foi preenchido o campo de telefone
-            if(isset($_POST['telefone']))
+            if(isset($_POST['telefone'])){
                 addTelefones($_POST['telefone'], $last_id);
+            }
+               
             
-            header('location: index.php?url=fornecedor&id=' . $empresa['id_empresa']);
-        } else {
-            header("location: index.php?url=cadastrarFornecedor&id=" . $empresa['id_empresa']);
+            unset($now);
+            $registroSalvo = true;
+            header('location: index.php?url=fornecedor&empresa=' . $empresa['id_empresa']);
+
         }
     }
 }
@@ -160,44 +164,44 @@ function validacoes($campos)
     // Classe de validação de CPF e CNPJ
     require_once('validaCpfCnpj.class.php');
 
-    global $empresa;
-    $empresa = find('empresa','id_empresa',$campos["'id_empresa'"]);
-    $empresa=$empresa[0];
+    // Testa se o CPF ou CNPJ já está cadastrado
+    $consultaCpfCnpj = find('fornecedor','cpf_cnpj',"'".$campos["'cpf_cnpj'"]."'");
+    if($consultaCpfCnpj){
+        $_SESSION['message'] = "CPF/CNPJ já cadastrado";
+        $_SESSION['type'] = 'danger';
+        return false;
+    }
+    // Testa se o CPF ou CNPJ é válido
     $validaCpfCnpj = new ValidaCPFCNPJ($campos["'cpf_cnpj'"]);
-    // Caso o CPF ou CNPJ seja válido, vai para o próximo teste
-    if ($validaCpfCnpj->valida()) {
-        // Caso tenha sido marcada a opção CPF, testa se a data de nascimento é maior que a data de hoje
-        if($campos["cpfCnpj"] == "cpf"){
-            $data_nascimento = date_create($campos["'data_nascimento'"]);
-            $hoje = new DateTime(date('Y-m-d'));
-            // Testa a data de nascimento
-            if($data_nascimento > $hoje ){
-                $_SESSION['message'] = "Data de nascimento inválida";
-                $_SESSION['type'] = 'danger';
-                return false;
-            }else{
-                // Caso a data de nascimento seja válida, testa se a empresa é do Paraná
-                if ($empresa['uf'] == "18") {
-            
-                    $idade = $data_nascimento->diff(new DateTime(date('Y-m-d')));
-                    // Caso a empresa seja do Paraná, testa se a data de nascimento possio diferença de 18 anos para a data atual
-                    if ($idade->y >= 18) {
-                        return true;
-                    } else {
-                        $_SESSION['message'] = "Empresas localizadas no Paraná não aceitam fornecedores pessoa física menores de idade";
-                        $_SESSION['type'] = 'danger';
-                        return false;
-                    }
-                }
-            }
-        }
-        
-        return true;
-    } else {
+    $validaCpfCnpj = $validaCpfCnpj->valida();
+    if (!$validaCpfCnpj) {
         $_SESSION['message'] = "CPF ou CNPJ inválido";
         $_SESSION['type'] = 'danger';
         return false;
     }
+
+    // Verifica se o campo marcado no radiobutton foi CPF
+    if($campos["cpfCnpj"] == "cpf"){
+        // Testa se a data de nascimento é anterior à data de hoje
+        $data_nascimento = date_create($campos["'data_nascimento'"]);
+        $hoje = new DateTime(date('Y-m-d'));
+        if($data_nascimento > $hoje ){
+            $_SESSION['message'] = "Data de nascimento inválida";
+            $_SESSION['type'] = 'danger';
+            return false;
+        }
+
+        // Testa se a empresa é do Paraná e se é maior de 18 anos
+        $empresa = find('empresa','id_empresa',$campos["id_empresa"]);
+        $empresa=$empresa[0];
+        $idade = $data_nascimento->diff(new DateTime(date('Y-m-d')));
+        if ($empresa['uf'] == "18" && $idade->y < 18) {
+            $_SESSION['message'] = "Empresas localizadas no Paraná não aceitam fornecedores pessoa física menores de idade";
+            $_SESSION['type'] = 'danger';
+            return false;
+        }
+    }
+    return true;
 }
 // Vericar se o valor retornado do BD é um CPF ou CNPJ, a partir da quantidade de caracteres
 function verificaCpfCnpj($valor)

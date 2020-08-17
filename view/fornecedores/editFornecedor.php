@@ -79,7 +79,7 @@ if($fornecedor):
     <br><br>
     <div id="actions" class="row">
         <div class="col-md-12"> <button type="submit" class="btn btn-primary">Salvar</button> 
-        <a href="javascript:void(0)" onClick="history.go(-1); return false;" class="btn btn-default">Cancelar</a> </div>
+        <a href="index.php?url=fornecedor&empresa=<?php echo $empresa['id_empresa']; ?>" class="btn btn-default">Cancelar</a> </div>
     </div>
 
 </form>

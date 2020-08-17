@@ -1,5 +1,5 @@
 <?php
-require_once "model/empresa.class.php";
+
 $empresas = null;
 $empresa = null;
 /**	 *  Listagem de Empresas	 */
@@ -53,6 +53,12 @@ function validacoes($campos)
 {
 
     require_once('validaCpfCnpj.class.php');
+    $pesquisaCnpj = find('empresa','cnpj',"'".$campos["'cnpj'"]."'");
+    if($pesquisaCnpj){
+        $_SESSION['message'] = "CNPJ já cadastrado";
+        $_SESSION['type'] = 'danger';
+        return false;
+    }
 
     $validaCpfCnpj = new ValidaCPFCNPJ($campos["'cnpj'"]);
     if (!$validaCpfCnpj->valida()) {

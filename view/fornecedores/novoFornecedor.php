@@ -3,7 +3,9 @@ require_once('ctrl/ctrl-fornecedores.php');
 // Função para recuperar os dados que serão apresentados
 indexFornecedores($_GET['empresa']);
 add();
-
+if(isset($registroSalvo)){
+    exit;
+}
 // Testa se a empresa na qual será cadastrado o fornecedor é do Paraná e prepara um aviso ao usuário
 if ($empresa['uf'] == 18) {
     $alerta = "
@@ -23,10 +25,11 @@ if (!empty($_SESSION['message'])) : ?>
 <?php 
 unset($_SESSION['message']);
  endif; 
- echo $alerta;
+
  ?>
 <h2>Novo Fornecedor - <?php echo $empresa['nome_fantasia']; ?></h2>
-<form action="index.php?url=cadastrarFornecedor&id=<?php echo $empresa['id_empresa']; ?>" method="post" name="fornecedor">
+
+<form action="index.php?url=cadastrarFornecedor&empresa=<?php echo $empresa['id_empresa']; ?>" method="post" name="fornecedor">
     <!-- area de campos do form -->
     <hr />
     <div class="row">
@@ -55,18 +58,21 @@ unset($_SESSION['message']);
 
     </div>
     <div class="row">
-        <div class="form-group col-md-4" id="telefones">
+        <div class="form-group col-md-3" id="telefones">
             <label for="telefone">Telefone(s)</label><br>
             <label>
                 <input type="text" class="form-control telefone" name="telefone[]">
             </label>
+        </div>
+        <div class="form-group col-md-6">
+            <?php  echo $alerta; ?>
         </div>
     </div>
     <button type="button" class="btn btn-success btn-sm addtelefone">+ Telefone</button>
     <br><br>
     <div id="actions" class="row">
         <div class="col-md-12"> <button type="submit" class="btn btn-primary">Salvar</button>
-     <a href="javascript:void(0)" onClick="history.go(-1); return false;" class="btn btn-default">Cancelar</a> </div>
+     <a href="index.php?url=fornecedor&empresa=<?php echo $empresa['id_empresa']; ?>" class="btn btn-default">Cancelar</a> </div>
     </div>
 
 </form>
